@@ -179,6 +179,11 @@ button {
   padding: 1.4rem 2rem 1.1rem;
 }
 
+.topbar-meta {
+  display: grid;
+  gap: 0.5rem;
+}
+
 .topbar-actions {
   display: flex;
   gap: 0.75rem;
@@ -195,6 +200,33 @@ button {
   padding: 0.5rem 0.9rem;
   color: #e3f1e7;
   font-weight: 600;
+}
+
+.status-pill-row {
+  display: flex;
+  gap: 0.55rem;
+  flex-wrap: wrap;
+}
+
+.status-pill {
+  display: inline-flex;
+  align-items: center;
+  border-radius: 999px;
+  padding: 0.4rem 0.75rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.status-pill.browser {
+  background: rgba(48, 61, 55, 0.95);
+  color: #e5f1e9;
+  border: 1px solid rgba(126, 181, 143, 0.24);
+}
+
+.status-pill.server {
+  background: rgba(35, 54, 46, 0.96);
+  color: #d9f3e3;
+  border: 1px solid rgba(108, 202, 151, 0.28);
 }
 
 .messages {

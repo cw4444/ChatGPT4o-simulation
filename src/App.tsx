@@ -219,6 +219,11 @@ function App() {
   const canSend = useMemo(() => {
     return Boolean(apiKey.trim() || hasServerApiKey) && Boolean(draft.trim()) && !isSending && Boolean(activeThread);
   }, [activeThread, apiKey, draft, hasServerApiKey, isSending]);
+  const keyModeLabel = hasServerApiKey
+    ? apiKey.trim()
+      ? 'Browser key active'
+      : 'Server key active'
+    : 'Browser key active';
 
   async function sendMessage(event?: FormEvent) {
     event?.preventDefault();
@@ -390,9 +395,14 @@ function App() {
 
       <main className="chat-shell">
         <header className="topbar">
-          <div>
+          <div className="topbar-meta">
             <p className="eyebrow">Model</p>
             <div className="model-pill">gpt-4o</div>
+            <div className="status-pill-row">
+              <span className={`status-pill ${hasServerApiKey && !apiKey.trim() ? 'server' : 'browser'}`}>
+                {keyModeLabel}
+              </span>
+            </div>
           </div>
 
           <div className="topbar-actions">

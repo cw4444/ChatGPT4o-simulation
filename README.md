@@ -5,6 +5,7 @@ This is a simple ChatGPT-style app for people who want to talk to `gpt-4o` using
 It includes:
 
 - a clean chat screen
+- image upload for visual prompts
 - a place to paste your API key
 - an optional safer server-side key mode
 - a customize box for special instructions
@@ -111,6 +112,7 @@ When the server sees `OPENAI_API_KEY`, the app can use that instead of a browser
 - Your saved chats are also stored in your browser on your own computer.
 - Clicking `New chat` starts a fresh conversation.
 - Older chats stay in the sidebar so you can reopen them later.
+- You can attach up to 3 images to a message and ask `gpt-4o` about them.
 
 ## Important Note
 

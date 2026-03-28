@@ -35,10 +35,46 @@ app.post('/api/chat', async (req, res) => {
     ...(trimmedInstructions
       ? [{ role: 'system', content: trimmedInstructions }]
       : []),
-    ...messages.map((message) => ({
-      role: message.role,
-      content: message.content
-    }))
+    ...messages.map((message) => {
+      const imageParts = Array.isArray(message.images)
+        ? message.images
+            .filter(
+              (image) =>
+                image &&
+                typeof image.dataUrl === 'string' &&
+                typeof image.mimeType === 'string' &&
+                image.mimeType.startsWith('image/')
+            )
+            .map((image) => ({
+              type: 'image_url',
+              image_url: {
+                url: image.dataUrl
+              }
+            }))
+        : [];
+
+      if (imageParts.length > 0) {
+        return {
+          role: message.role,
+          content: [
+            ...(typeof message.content === 'string' && message.content.trim()
+              ? [
+                  {
+                    type: 'text',
+                    text: message.content
+                  }
+                ]
+              : []),
+            ...imageParts
+          ]
+        };
+      }
+
+      return {
+        role: message.role,
+        content: message.content
+      };
+    })
   ];
 
   try {

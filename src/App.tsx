@@ -1,4 +1,4 @@
-import { FormEvent, KeyboardEvent, useEffect, useMemo, useRef, useState } from 'react';
+import { ChangeEvent, FormEvent, KeyboardEvent, useEffect, useMemo, useRef, useState } from 'react';
 
 type Role = 'user' | 'assistant';
 
@@ -6,6 +6,7 @@ type Message = {
   id: string;
   role: Role;
   content: string;
+  images?: UploadedImage[];
 };
 
 type ChatThread = {
@@ -18,6 +19,13 @@ type ChatThread = {
 
 type AppConfig = {
   hasServerApiKey: boolean;
+};
+
+type UploadedImage = {
+  id: string;
+  name: string;
+  mimeType: string;
+  dataUrl: string;
 };
 
 const API_KEY_STORAGE = 'gpt4o-chat-api-key';
@@ -59,6 +67,10 @@ function createMessage(role: Role, content: string): Message {
     role,
     content
   };
+}
+
+function createImageId() {
+  return crypto.randomUUID();
 }
 
 function createThread(title = 'New chat'): ChatThread {
@@ -147,6 +159,7 @@ function App() {
   const [apiKey, setApiKey] = useState(() => readStorage(API_KEY_STORAGE));
   const [instructions, setInstructions] = useState(() => readStorage(INSTRUCTIONS_STORAGE));
   const [draft, setDraft] = useState('');
+  const [pendingImages, setPendingImages] = useState<UploadedImage[]>([]);
   const [isSending, setIsSending] = useState(false);
   const [error, setError] = useState('');
   const [hasServerApiKey, setHasServerApiKey] = useState(false);
@@ -217,8 +230,13 @@ function App() {
   }, []);
 
   const canSend = useMemo(() => {
-    return Boolean(apiKey.trim() || hasServerApiKey) && Boolean(draft.trim()) && !isSending && Boolean(activeThread);
-  }, [activeThread, apiKey, draft, hasServerApiKey, isSending]);
+    return (
+      Boolean(apiKey.trim() || hasServerApiKey) &&
+      Boolean(draft.trim() || pendingImages.length) &&
+      !isSending &&
+      Boolean(activeThread)
+    );
+  }, [activeThread, apiKey, draft, hasServerApiKey, isSending, pendingImages.length]);
   const keyModeLabel = hasServerApiKey
     ? apiKey.trim()
       ? 'Browser key active'
@@ -241,7 +259,12 @@ function App() {
     }
 
     const threadId = activeThread.id;
-    const userMessage = createMessage('user', draft.trim());
+    const userMessage: Message = {
+      id: crypto.randomUUID(),
+      role: 'user',
+      content: draft.trim(),
+      images: pendingImages
+    };
     const requestMessages = [...activeThread.messages, userMessage];
     const updatedUserThread: ChatThread = {
       ...activeThread,
@@ -255,6 +278,7 @@ function App() {
     });
 
     setDraft('');
+    setPendingImages([]);
     setError('');
     setIsSending(true);
 
@@ -267,7 +291,11 @@ function App() {
         body: JSON.stringify({
           apiKey: apiKey.trim(),
           instructions,
-          messages: requestMessages.map(({ role, content }) => ({ role, content }))
+          messages: requestMessages.map(({ role, content, images }) => ({
+            role,
+            content,
+            images
+          }))
         })
       });
 
@@ -320,6 +348,7 @@ function App() {
     setActiveThreadId(newThread.id);
     setError('');
     setDraft('');
+    setPendingImages([]);
     composerRef.current?.focus();
   }
 
@@ -344,6 +373,68 @@ function App() {
   function clearSavedApiKey() {
     setApiKey('');
     removeStorage(API_KEY_STORAGE);
+  }
+
+  async function handleImageSelection(event: ChangeEvent<HTMLInputElement>) {
+    const files = Array.from(event.target.files ?? []);
+
+    if (!files.length) {
+      return;
+    }
+
+    const availableSlots = Math.max(0, 3 - pendingImages.length);
+    const selectedFiles = files.slice(0, availableSlots);
+
+    try {
+      const loadedImages = await Promise.all(
+        selectedFiles.map(
+          (file) =>
+            new Promise<UploadedImage>((resolve, reject) => {
+              if (!file.type.startsWith('image/')) {
+                reject(new Error(`${file.name} is not an image file.`));
+                return;
+              }
+
+              if (file.size > 8 * 1024 * 1024) {
+                reject(new Error(`${file.name} is larger than 8MB.`));
+                return;
+              }
+
+              const reader = new FileReader();
+
+              reader.onload = () => {
+                const result = reader.result;
+
+                if (typeof result !== 'string') {
+                  reject(new Error(`Could not read ${file.name}.`));
+                  return;
+                }
+
+                resolve({
+                  id: createImageId(),
+                  name: file.name,
+                  mimeType: file.type,
+                  dataUrl: result
+                });
+              };
+
+              reader.onerror = () => reject(new Error(`Could not read ${file.name}.`));
+              reader.readAsDataURL(file);
+            })
+        )
+      );
+
+      setPendingImages((current) => [...current, ...loadedImages]);
+      setError('');
+    } catch (uploadError) {
+      setError(uploadError instanceof Error ? uploadError.message : 'Could not load the selected image.');
+    } finally {
+      event.target.value = '';
+    }
+  }
+
+  function removePendingImage(imageId: string) {
+    setPendingImages((current) => current.filter((image) => image.id !== imageId));
   }
 
   return (
@@ -423,11 +514,23 @@ function App() {
             >
               <div className="message-card">
                 <p className="message-role">{message.role === 'user' ? 'You' : '4o'}</p>
-                <div className="message-content">
-                  {message.content.split('\n').map((line, index) => (
-                    <p key={`${message.id}-${index}`}>{line || '\u00A0'}</p>
-                  ))}
-                </div>
+                {message.images?.length ? (
+                  <div className="message-image-grid">
+                    {message.images.map((image) => (
+                      <figure key={image.id} className="message-image-card">
+                        <img src={image.dataUrl} alt={image.name} className="message-image" />
+                        <figcaption>{image.name}</figcaption>
+                      </figure>
+                    ))}
+                  </div>
+                ) : null}
+                {message.content ? (
+                  <div className="message-content">
+                    {message.content.split('\n').map((line, index) => (
+                      <p key={`${message.id}-${index}`}>{line || '\u00A0'}</p>
+                    ))}
+                  </div>
+                ) : null}
               </div>
             </article>
           ))}
@@ -451,20 +554,49 @@ function App() {
         <div className="composer-wrap">
           {error ? <p className="error-banner">{error}</p> : null}
 
+          {pendingImages.length ? (
+            <div className="pending-images">
+              {pendingImages.map((image) => (
+                <div key={image.id} className="pending-image-chip">
+                  <img src={image.dataUrl} alt={image.name} className="pending-image-thumb" />
+                  <div className="pending-image-copy">
+                    <span>{image.name}</span>
+                    <button type="button" className="remove-image-button" onClick={() => removePendingImage(image.id)}>
+                      Remove
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : null}
+
           <form className="composer" onSubmit={sendMessage}>
             <textarea
               ref={composerRef}
               value={draft}
               onChange={(event) => setDraft(event.target.value)}
               onKeyDown={handleComposerKeyDown}
-              placeholder="Message gpt-4o..."
+              placeholder="Message gpt-4o or add an image..."
               rows={1}
             />
-            <button className="send-button" type="submit" disabled={!canSend}>
-              Send
-            </button>
+            <div className="composer-actions">
+              <label className="upload-button" htmlFor="image-upload">
+                Add image
+              </label>
+              <input
+                id="image-upload"
+                className="hidden-file-input"
+                type="file"
+                accept="image/*"
+                multiple
+                onChange={handleImageSelection}
+              />
+              <button className="send-button" type="submit" disabled={!canSend}>
+                Send
+              </button>
+            </div>
           </form>
-          <p className="composer-hint">Enter sends. Shift+Enter adds a new line.</p>
+          <p className="composer-hint">Enter sends. Shift+Enter adds a new line. You can attach up to 3 images per message.</p>
         </div>
       </main>
 

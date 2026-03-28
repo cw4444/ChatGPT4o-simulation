@@ -18,6 +18,7 @@ Before you start, make sure you have:
 
 - a computer running Windows, Mac, or Linux
 - an OpenAI API key
+- an OpenAI API account with billing set up
 - Node.js installed
 
 If you do not already have Node.js, install the current LTS version from [nodejs.org](https://nodejs.org/).
@@ -45,6 +46,40 @@ Then go into the folder:
 ```bash
 cd ChatGPT4o-simulation
 ```
+
+## How To Get An OpenAI API Key
+
+If you have never used the OpenAI API before, do this first:
+
+1. Sign in to OpenAI or create an account
+2. Go to the API keys page: [Create or manage API keys](https://platform.openai.com/settings/organization/api-keys)
+3. Create a new API key
+4. Copy it somewhere safe right away
+
+Important:
+
+- treat your API key like a password
+- do not post it publicly
+- do not send it to other people
+- do not put it in screenshots
+- you may not be able to view the full key again later, so save it safely when OpenAI shows it
+
+## Billing And Pricing
+
+To use the API, you usually need billing enabled on your OpenAI account.
+
+Useful links:
+
+- [OpenAI API pricing](https://openai.com/api/pricing)
+- [Billing overview / balance](https://platform.openai.com/settings/organization/billing/overview)
+
+Plain-English version:
+
+- this is not a giant subscription you accidentally get trapped in
+- API use is usually pay-as-you-go
+- light casual chatting is often inexpensive
+- costs go up if you send lots of messages, very long chats, or lots of images
+- always check the official pricing page above for the latest numbers
 
 ## How To Run It On Your Computer
 

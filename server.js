@@ -1,0 +1,73 @@
+import express from 'express';
+
+const app = express();
+const port = 8787;
+
+app.use(express.json({ limit: '2mb' }));
+
+app.post('/api/chat', async (req, res) => {
+  const { apiKey, messages, instructions } = req.body ?? {};
+
+  if (!apiKey || typeof apiKey !== 'string') {
+    return res.status(400).json({ error: 'An OpenAI API key is required.' });
+  }
+
+  if (!Array.isArray(messages) || messages.length === 0) {
+    return res.status(400).json({ error: 'At least one message is required.' });
+  }
+
+  const trimmedInstructions =
+    typeof instructions === 'string' ? instructions.trim() : '';
+
+  const requestMessages = [
+    ...(trimmedInstructions
+      ? [{ role: 'system', content: trimmedInstructions }]
+      : []),
+    ...messages.map((message) => ({
+      role: message.role,
+      content: message.content
+    }))
+  ];
+
+  try {
+    const response = await fetch('https://api.openai.com/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${apiKey}`
+      },
+      body: JSON.stringify({
+        model: 'gpt-4o',
+        messages: requestMessages
+      })
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      const errorMessage =
+        data?.error?.message ?? 'OpenAI returned an unexpected error.';
+
+      return res.status(response.status).json({ error: errorMessage });
+    }
+
+    const text = data?.choices?.[0]?.message?.content;
+
+    if (typeof text !== 'string' || !text.trim()) {
+      return res
+        .status(502)
+        .json({ error: 'The model response was empty or unreadable.' });
+    }
+
+    return res.json({ reply: text });
+  } catch (error) {
+    const message =
+      error instanceof Error ? error.message : 'Unable to reach OpenAI.';
+
+    return res.status(500).json({ error: message });
+  }
+});
+
+app.listen(port, () => {
+  console.log(`4o chat server running on http://localhost:${port}`);
+});

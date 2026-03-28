@@ -16,6 +16,10 @@ type ChatThread = {
   messages: Message[];
 };
 
+type AppConfig = {
+  hasServerApiKey: boolean;
+};
+
 const API_KEY_STORAGE = 'gpt4o-chat-api-key';
 const INSTRUCTIONS_STORAGE = 'gpt4o-chat-instructions';
 const THREADS_STORAGE = 'gpt4o-chat-threads';
@@ -145,6 +149,7 @@ function App() {
   const [draft, setDraft] = useState('');
   const [isSending, setIsSending] = useState(false);
   const [error, setError] = useState('');
+  const [hasServerApiKey, setHasServerApiKey] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(() => !readStorage(API_KEY_STORAGE));
   const [threads, setThreads] = useState<ChatThread[]>(() => getInitialThreads());
   const [activeThreadId, setActiveThreadId] = useState(() => readStorage(ACTIVE_THREAD_STORAGE));
@@ -186,9 +191,34 @@ function App() {
     }
   }, [activeThreadId]);
 
+  useEffect(() => {
+    let isMounted = true;
+
+    async function loadConfig() {
+      try {
+        const response = await fetch('/api/config');
+        const data = (await response.json()) as AppConfig;
+
+        if (isMounted) {
+          setHasServerApiKey(Boolean(data.hasServerApiKey));
+        }
+      } catch {
+        if (isMounted) {
+          setHasServerApiKey(false);
+        }
+      }
+    }
+
+    void loadConfig();
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
   const canSend = useMemo(() => {
-    return Boolean(apiKey.trim()) && Boolean(draft.trim()) && !isSending && Boolean(activeThread);
-  }, [activeThread, apiKey, draft, isSending]);
+    return Boolean(apiKey.trim() || hasServerApiKey) && Boolean(draft.trim()) && !isSending && Boolean(activeThread);
+  }, [activeThread, apiKey, draft, hasServerApiKey, isSending]);
 
   async function sendMessage(event?: FormEvent) {
     event?.preventDefault();
@@ -198,8 +228,8 @@ function App() {
     }
 
     if (!canSend) {
-      if (!apiKey.trim()) {
-        setError('Add your OpenAI API key before sending a message.');
+      if (!apiKey.trim() && !hasServerApiKey) {
+        setError('Add your OpenAI API key before sending a message, or start the server with OPENAI_API_KEY set.');
         setSettingsOpen(true);
       }
       return;
@@ -304,6 +334,11 @@ function App() {
 
       return remaining;
     });
+  }
+
+  function clearSavedApiKey() {
+    setApiKey('');
+    removeStorage(API_KEY_STORAGE);
   }
 
   return (
@@ -441,13 +476,20 @@ function App() {
               <input
                 id="api-key"
                 type="password"
-                placeholder="sk-..."
+                placeholder={hasServerApiKey ? 'Optional when server key mode is enabled' : 'sk-...'}
                 value={apiKey}
                 onChange={(event) => setApiKey(event.target.value)}
               />
               <p className="field-hint">
-                Saved locally in this browser so users do not need to paste it each time.
+                {hasServerApiKey
+                  ? 'A server-side key is available, so this field is optional. If you enter one here, it stays in this browser on this machine only.'
+                  : 'Saved locally in this browser on this machine only so users do not need to paste it each time.'}
               </p>
+              <div className="settings-actions">
+                <button className="ghost-button" type="button" onClick={clearSavedApiKey}>
+                  Clear saved key
+                </button>
+              </div>
             </div>
 
             <div className="control-group">
@@ -459,6 +501,13 @@ function App() {
                 placeholder="Example: Be concise, friendly, and format code in fenced blocks."
                 rows={10}
               />
+            </div>
+
+            <div className="safety-note">
+              <p className="safety-title">Privacy note</p>
+              <p className="field-hint">
+                This app is designed for local use. Your chats and browser-saved key stay on your own computer, and requests are sent only to your own local server and then to OpenAI.
+              </p>
             </div>
           </aside>
         </div>

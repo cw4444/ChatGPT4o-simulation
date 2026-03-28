@@ -1,15 +1,27 @@
+import 'dotenv/config';
 import express from 'express';
 
 const app = express();
 const port = 8787;
+const serverApiKey = process.env.OPENAI_API_KEY?.trim() ?? '';
 
 app.use(express.json({ limit: '2mb' }));
 
+app.get('/api/config', (_req, res) => {
+  return res.json({
+    hasServerApiKey: Boolean(serverApiKey)
+  });
+});
+
 app.post('/api/chat', async (req, res) => {
   const { apiKey, messages, instructions } = req.body ?? {};
+  const resolvedApiKey =
+    typeof apiKey === 'string' && apiKey.trim() ? apiKey.trim() : serverApiKey;
 
-  if (!apiKey || typeof apiKey !== 'string') {
-    return res.status(400).json({ error: 'An OpenAI API key is required.' });
+  if (!resolvedApiKey) {
+    return res.status(400).json({
+      error: 'An OpenAI API key is required. Add one in Customize or set OPENAI_API_KEY before starting the server.'
+    });
   }
 
   if (!Array.isArray(messages) || messages.length === 0) {
@@ -34,7 +46,7 @@ app.post('/api/chat', async (req, res) => {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        Authorization: `Bearer ${apiKey}`
+        Authorization: `Bearer ${resolvedApiKey}`
       },
       body: JSON.stringify({
         model: 'gpt-4o',
@@ -69,5 +81,7 @@ app.post('/api/chat', async (req, res) => {
 });
 
 app.listen(port, () => {
-  console.log(`4o chat server running on http://localhost:${port}`);
+  console.log(
+    `4o chat server running on http://localhost:${port}${serverApiKey ? ' with server API key mode enabled' : ''}`
+  );
 });

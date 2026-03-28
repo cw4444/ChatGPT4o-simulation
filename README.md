@@ -6,6 +6,7 @@ It includes:
 
 - a clean chat screen
 - a place to paste your API key
+- an optional safer server-side key mode
 - a customize box for special instructions
 - saved chat history in the sidebar
 - local storage in your browser, so your key, chats, and instructions stay there on your own machine
@@ -67,10 +68,46 @@ Once it starts, open this in your browser:
 4. If you want, add custom instructions for how the assistant should behave.
 5. Start chatting.
 
+## Two Ways To Use Your API Key
+
+### Option 1: Easy mode
+
+Paste your API key into the app.
+
+- It is saved only in that browser on that computer.
+- It is not pushed to GitHub.
+- It is not shared with other people automatically.
+
+This is the easiest option for most people using the app locally on their own machine.
+
+### Option 2: More cautious mode
+
+Keep your API key out of the browser completely and store it in a local environment file instead.
+
+1. In the project folder, make a copy of `.env.example`
+2. Rename the copy to `.env`
+3. Open `.env`
+4. Replace the example text with your real OpenAI API key
+
+It should look like this:
+
+```env
+OPENAI_API_KEY=sk-your-real-key-here
+```
+
+Then start the app the normal way:
+
+```bash
+npm install
+npm run dev
+```
+
+When the server sees `OPENAI_API_KEY`, the app can use that instead of a browser-saved key.
+
 ## How It Works
 
 - The model is locked to `gpt-4o`.
-- Your API key is stored only in your browser on your own computer.
+- Your API key can be stored either in your browser on your own computer or in a local `.env` file on your own computer.
 - Your saved chats are also stored in your browser on your own computer.
 - Clicking `New chat` starts a fresh conversation.
 - Older chats stay in the sidebar so you can reopen them later.
@@ -88,6 +125,7 @@ Try these steps:
 3. Make sure `npm run dev` is still running in the terminal.
 4. Make sure you opened [http://localhost:5180](http://localhost:5180) and not the raw `index.html` file.
 5. If another app is already using that port, stop the other app and try again.
+6. If you are using `.env`, make sure the file is named exactly `.env` and that `OPENAI_API_KEY=` is filled in.
 
 ## For People Sharing This With Friends
 

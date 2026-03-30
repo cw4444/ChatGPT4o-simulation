@@ -19,6 +19,8 @@ type ChatThread = {
 
 type AppConfig = {
   hasServerApiKey: boolean;
+  model?: string;
+  appName?: string;
 };
 
 type UploadedImage = {
@@ -35,7 +37,7 @@ const ACTIVE_THREAD_STORAGE = 'gpt4o-chat-active-thread';
 const LEGACY_MESSAGES_STORAGE = 'gpt4o-chat-messages';
 
 const starterText =
-  'You’re chatting with gpt-4o. Add your API key in Customize, write optional instructions for how the assistant should behave, and start talking.';
+  '4o Chat Studio is ready. Add your API key in Customize, set optional guidance for the assistant, and start a fresh thread.';
 
 function readStorage(key: string) {
   try {
@@ -163,6 +165,8 @@ function App() {
   const [isSending, setIsSending] = useState(false);
   const [error, setError] = useState('');
   const [hasServerApiKey, setHasServerApiKey] = useState(false);
+  const [modelName, setModelName] = useState('gpt-4o');
+  const [appName, setAppName] = useState('4o Chat Studio');
   const [settingsOpen, setSettingsOpen] = useState(() => !readStorage(API_KEY_STORAGE));
   const [threads, setThreads] = useState<ChatThread[]>(() => getInitialThreads());
   const [activeThreadId, setActiveThreadId] = useState(() => readStorage(ACTIVE_THREAD_STORAGE));
@@ -214,10 +218,14 @@ function App() {
 
         if (isMounted) {
           setHasServerApiKey(Boolean(data.hasServerApiKey));
+          setModelName(data.model?.trim() || 'gpt-4o');
+          setAppName(data.appName?.trim() || '4o Chat Studio');
         }
       } catch {
         if (isMounted) {
           setHasServerApiKey(false);
+          setModelName('gpt-4o');
+          setAppName('4o Chat Studio');
         }
       }
     }
@@ -441,7 +449,8 @@ function App() {
     <div className="app-shell">
       <aside className="sidebar">
         <div className="sidebar-top">
-          <p className="eyebrow">4o Chat</p>
+          <p className="eyebrow">{appName}</p>
+          <p className="sidebar-copy">A lightweight multi-thread chat workspace for text and image prompts.</p>
           <button className="secondary-button wide-button" type="button" onClick={startFreshChat}>
             New chat
           </button>
@@ -487,8 +496,8 @@ function App() {
       <main className="chat-shell">
         <header className="topbar">
           <div className="topbar-meta">
-            <p className="eyebrow">Model</p>
-            <div className="model-pill">gpt-4o</div>
+            <p className="eyebrow">{appName}</p>
+            <div className="model-pill">{modelName}</div>
             <div className="status-pill-row">
               <span className={`status-pill ${hasServerApiKey && !apiKey.trim() ? 'server' : 'browser'}`}>
                 {keyModeLabel}
@@ -576,7 +585,7 @@ function App() {
               value={draft}
               onChange={(event) => setDraft(event.target.value)}
               onKeyDown={handleComposerKeyDown}
-              placeholder="Message gpt-4o or add an image..."
+              placeholder={`Message ${modelName} or add an image...`}
               rows={1}
             />
             <div className="composer-actions">
@@ -606,7 +615,7 @@ function App() {
             <div className="settings-heading">
               <div>
                 <p className="eyebrow">Customize</p>
-                <h1>Your local 4o setup</h1>
+                <h1>Your chat setup</h1>
               </div>
               <button className="ghost-button" type="button" onClick={() => setSettingsOpen(false)}>
                 Close
@@ -625,7 +634,7 @@ function App() {
               <p className="field-hint">
                 {hasServerApiKey
                   ? 'A server-side key is available, so this field is optional. If you enter one here, it stays in this browser on this machine only.'
-                  : 'Saved locally in this browser on this machine only so users do not need to paste it each time.'}
+                  : 'Saved locally in this browser on this machine only so you do not need to paste it each time.'}
               </p>
               <div className="settings-actions">
                 <button className="ghost-button" type="button" onClick={clearSavedApiKey}>
@@ -648,7 +657,7 @@ function App() {
             <div className="safety-note">
               <p className="safety-title">Privacy note</p>
               <p className="field-hint">
-                This app is designed for local use. Your chats and browser-saved key stay on your own computer, and requests are sent only to your own local server and then to OpenAI.
+                This app keeps chat history in local browser storage. In hosted mode, requests go through a server-side proxy so an environment-stored OpenAI key never needs to ship to the client.
               </p>
             </div>
           </aside>

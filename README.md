@@ -1,180 +1,67 @@
-# 4o Chat
+# 4o Chat Studio
 
-This is a simple ChatGPT-style app for people who want to talk to `gpt-4o` using their own OpenAI API key.
+A polished GPT-4o chat demo with multi-thread history, image prompts, browser-saved sessions, and a server-side OpenAI mode for safer hosted use.
 
-It includes:
+## Highlights
 
-- a clean chat screen
+- clean React + Vite chat interface
+- multi-thread local chat history
 - image upload for visual prompts
-- a place to paste your API key
-- an optional safer server-side key mode
-- a customize box for special instructions
-- saved chat history in the sidebar
-- local storage in your browser, so your key, chats, and instructions stay there on your own machine
+- optional browser-saved API key mode
+- server-side OpenAI proxy for local or hosted deployments
+- custom assistant instructions per browser session
 
-## What You Need
+## Live Demo
 
-Before you start, make sure you have:
+- Demo: [four-o-chat-studio.vercel.app](https://four-o-chat-studio.vercel.app)
 
-- a computer running Windows, Mac, or Linux
-- an OpenAI API key
-- an OpenAI API account with billing set up
-- Node.js installed
-
-If you do not already have Node.js, install the current LTS version from [nodejs.org](https://nodejs.org/).
-
-## How To Download It From GitHub
-
-### Option 1: The easy way
-
-1. Open the GitHub page for this project.
-2. Click the green `Code` button.
-3. Click `Download ZIP`.
-4. Save the ZIP file somewhere easy to find, like your Desktop or Downloads folder.
-5. Unzip it.
-
-### Option 2: Using Git
-
-If you already use Git, open Terminal, PowerShell, or Command Prompt and run:
-
-```bash
-git clone https://github.com/cw4444/ChatGPT4o-simulation.git
-```
-
-Then go into the folder:
-
-```bash
-cd ChatGPT4o-simulation
-```
-
-## How To Get An OpenAI API Key
-
-If you have never used the OpenAI API before, do this first:
-
-1. Sign in to OpenAI or create an account
-2. Go to the API keys page: [Create or manage API keys](https://platform.openai.com/settings/organization/api-keys)
-3. Create a new API key
-4. Copy it somewhere safe right away
-
-Important:
-
-- treat your API key like a password
-- do not post it publicly
-- do not send it to other people
-- do not put it in screenshots
-- you may not be able to view the full key again later, so save it safely when OpenAI shows it
-
-## Billing And Pricing
-
-To use the API, you usually need billing enabled on your OpenAI account.
-
-Useful links:
-
-- [OpenAI API pricing](https://openai.com/api/pricing)
-- [Billing overview / balance](https://platform.openai.com/settings/organization/billing/overview)
-
-Plain-English version:
-
-- this is not a giant subscription you accidentally get trapped in
-- API use is usually pay-as-you-go
-- light casual chatting is often inexpensive
-- costs go up if you send lots of messages, very long chats, or lots of images
-- always check the official pricing page above for the latest numbers
-
-## How To Run It On Your Computer
-
-Open Terminal, PowerShell, or Command Prompt inside the project folder.
-
-Then run:
+## Local Development
 
 ```bash
 npm install
 npm run dev
 ```
 
-Once it starts, open this in your browser:
+Open [http://localhost:5180](http://localhost:5180).
 
-[http://localhost:5180](http://localhost:5180)
+## API Key Options
 
-## First-Time Setup Inside The App
+### Browser key mode
 
-1. Open the app in your browser.
-2. Click `Customize`.
-3. Paste your OpenAI API key into the API key box.
-4. If you want, add custom instructions for how the assistant should behave.
-5. Start chatting.
+Paste your OpenAI key into the `Customize` panel. The key stays in that browser on that machine.
 
-## Two Ways To Use Your API Key
+### Server key mode
 
-### Option 1: Easy mode
-
-Paste your API key into the app.
-
-- It is saved only in that browser on that computer.
-- It is not pushed to GitHub.
-- It is not shared with other people automatically.
-
-This is the easiest option for most people using the app locally on their own machine.
-
-### Option 2: More cautious mode
-
-Keep your API key out of the browser completely and store it in a local environment file instead.
-
-1. In the project folder, make a copy of `.env.example`
-2. Rename the copy to `.env`
-3. Open `.env`
-4. Replace the example text with your real OpenAI API key
-
-It should look like this:
+Copy `.env.example` to `.env` and add your key:
 
 ```env
 OPENAI_API_KEY=sk-your-real-key-here
 ```
 
-Then start the app the normal way:
+Then run the app normally:
 
 ```bash
-npm install
 npm run dev
 ```
 
-When the server sees `OPENAI_API_KEY`, the app can use that instead of a browser-saved key.
+When `OPENAI_API_KEY` is present, the app can send requests through the local or hosted server without exposing the key to the client.
 
-## How It Works
+## Hosted Deployment
 
-- The model is locked to `gpt-4o`.
-- Your API key can be stored either in your browser on your own computer or in a local `.env` file on your own computer.
-- Your saved chats are also stored in your browser on your own computer.
-- Clicking `New chat` starts a fresh conversation.
-- Older chats stay in the sidebar so you can reopen them later.
-- You can attach up to 3 images to a message and ask `gpt-4o` about them.
+This repo is set up for Vercel:
 
-## Important Note
+- the frontend builds from Vite into `dist`
+- the hosted API lives in `api/chat.js` and `api/config.js`
+- shared OpenAI request logic lives in `lib/openai-runtime.mjs`
 
-This app uses your own OpenAI API key, so your OpenAI account usage may cost money depending on your plan and how much you use it.
+Set `OPENAI_API_KEY` in Vercel project environment variables before deploying if you want server-side key mode on the public demo.
 
-## If Something Is Not Working
+## Notes
 
-Try these steps:
-
-1. Make sure Node.js is installed.
-2. Make sure you are running the commands inside the project folder.
-3. Make sure `npm run dev` is still running in the terminal.
-4. Make sure you opened [http://localhost:5180](http://localhost:5180) and not the raw `index.html` file.
-5. If another app is already using that port, stop the other app and try again.
-6. If you are using `.env`, make sure the file is named exactly `.env` and that `OPENAI_API_KEY=` is filled in.
-
-## For People Sharing This With Friends
-
-The easiest setup for most people is:
-
-1. Download the ZIP from GitHub.
-2. Unzip it.
-3. Open the folder in PowerShell or Terminal.
-4. Run `npm install`
-5. Run `npm run dev`
-6. Open [http://localhost:5180](http://localhost:5180)
-7. Paste in their own OpenAI API key
+- model default: `gpt-4o`
+- chat history is stored in local browser storage
+- image attachments are limited to 3 per message
+- each image must be under 8MB
 
 ## License
 

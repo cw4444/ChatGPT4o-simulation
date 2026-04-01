@@ -65,4 +65,4 @@ Set `OPENAI_API_KEY` in Vercel project environment variables before deploying if
 
 ## License
 
-Use, adapt, and share as needed.
+This software is currently not licensed for commercial use. If you’d like to use this in a business setting or install it professionally, please contact me at cw4444@gmail.com

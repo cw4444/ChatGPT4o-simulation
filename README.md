@@ -4,28 +4,37 @@
 
 Concept by Charli. Heavy lifting by Codex.
 
-## For Friends
+## Start Here
 
-If you just want to use it:
+If you want to use the app:
 
-- open the app
-- click `Customize`
-- add your OpenAI API key if you have one
-- pick a preset or move the sliders
-- start chatting
+1. Open the app.
+2. Click `Customize`.
+3. Add your OpenAI API key if you have one.
+4. Pick a preset or move the sliders.
+5. Start chatting.
 
 If a key was saved in that browser before, it should still be there. If not, just add a new one.
 
-## Need To Run It?
+## Running It Locally
 
-If you are a developer and want to run it locally:
+If you want to run the app yourself:
+
+1. Install the dependencies.
 
 ```bash
 npm install
+```
+
+2. Start the app.
+
+```bash
 npm run dev
 ```
 
-Then open [http://localhost:5180](http://localhost:5180).
+3. Open [http://localhost:5180](http://localhost:5180).
+
+If you want the setup details, deployment notes, or technical bits, see [DEV.md](DEV.md).
 
 ## Tiny Notes
 

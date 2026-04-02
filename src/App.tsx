@@ -808,7 +808,7 @@ function App() {
             </button>
           ) : null}
           <a className="sidebar-credit" href="https://chatgpt.com/codex" target="_blank" rel="noreferrer">
-            Built with Codex
+            Concept by Charli. Heavy lifting by Codex.
           </a>
         </div>
       </aside>
@@ -829,7 +829,7 @@ function App() {
               target="_blank"
               rel="noreferrer"
             >
-              Built with Codex
+              Concept by Charli. Heavy lifting by Codex.
             </a>
           </div>
 
@@ -1097,7 +1097,7 @@ function App() {
             </div>
 
             <div className="credit-note">
-              <p className="credit-title">Built with Codex</p>
+              <p className="credit-title">Concept by Charli. Heavy lifting by Codex.</p>
               <p className="field-hint">
                 Shipped with a little human snacks-and-vibes energy on the side.
               </p>

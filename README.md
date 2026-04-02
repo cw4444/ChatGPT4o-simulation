@@ -2,7 +2,7 @@
 
 4o Chat Studio is a small chat app with a clean interface, multi-thread history, image uploads, and optional assistant personality controls.
 
-This version was built entirely by Codex. The human role was limited to snacks, vibes, and delighted testing.
+Concept by Charli. Heavy lifting by Codex. The human role was limited to snacks, vibes, and delighted testing.
 
 ## What It Does
 
@@ -32,7 +32,7 @@ npm run dev
 
 ### Option 1: Save a key in the app
 
-Open the `Customize` panel and paste your OpenAI API key there. It stays in that browser on that machine.
+Open the `Customize` panel and paste your OpenAI API key there. It stays in that browser on that machine, so if your mates already had one, they can reuse it without seeing it again.
 
 ### Option 2: Use a server-side key
 

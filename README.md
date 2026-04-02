@@ -4,6 +4,18 @@
 
 Concept by Charli. Heavy lifting by Codex. The human role was limited to snacks, vibes, and delighted testing.
 
+## For Friends
+
+If you’re just here to have a play:
+
+- open the app
+- click `Customize`
+- add your OpenAI API key if you have one
+- choose a personality preset or drag the sliders
+- start chatting
+
+If you used a browser-saved key before, it should still be there in that same browser. If not, you’ll need to add a new one.
+
 ## What It Does
 
 - lets you chat with OpenAI models

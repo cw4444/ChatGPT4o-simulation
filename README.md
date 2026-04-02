@@ -13,10 +13,6 @@ This version was built entirely by Codex. The human role was limited to snacks, 
 - server-side OpenAI proxy for local or hosted deployments
 - custom assistant instructions per browser session
 
-## Live Demo
-
-- Demo: [four-o-chat-studio.vercel.app](https://four-o-chat-studio.vercel.app)
-
 ## Local Development
 
 ```bash

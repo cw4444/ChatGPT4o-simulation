@@ -820,7 +820,14 @@ function App() {
                 {keyModeLabel}
               </span>
             </div>
-            <div className="credit-badge">Built with Codex</div>
+            <a
+              className="credit-badge"
+              href="https://chatgpt.com/codex"
+              target="_blank"
+              rel="noreferrer"
+            >
+              Built with Codex
+            </a>
           </div>
 
           <div className="topbar-actions">

@@ -29,6 +29,7 @@ If you want to run the app yourself, here’s the no-fuss version:
 7. In the black window, paste:
 
 ```bash
+cd C:\Users\cw444\CascadeProjects\ChatGPT4o-simulation
 npm install
 npm run dev
 ```

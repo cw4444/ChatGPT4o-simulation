@@ -1084,6 +1084,13 @@ function App() {
                 This app keeps chat history in local browser storage. In hosted mode, requests go through a server-side proxy so an environment-stored OpenAI key never needs to ship to the client.
               </p>
             </div>
+
+            <div className="credit-note">
+              <p className="credit-title">Built with Codex</p>
+              <p className="field-hint">
+                Shipped with a little human snacks-and-vibes energy on the side.
+              </p>
+            </div>
           </aside>
         </div>
       ) : null}

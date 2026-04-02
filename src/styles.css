@@ -687,6 +687,22 @@ button {
   font-weight: 700;
 }
 
+.credit-note {
+  border: 1px solid rgba(126, 181, 143, 0.12);
+  border-radius: 18px;
+  background: rgba(10, 14, 16, 0.8);
+  padding: 0.9rem 1rem;
+}
+
+.credit-title {
+  margin: 0 0 0.35rem;
+  color: #dff1e7;
+  font-size: 0.9rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
 @keyframes pulse {
   0%,
   80%,

@@ -20,19 +20,25 @@ If a key was saved in that browser before, it should still be there. If not, jus
 
 If you want to run the app yourself:
 
-1. Install the dependencies.
+1. Install Node.js if you do not already have it. On Windows, the easiest way is:
+
+```bash
+winget install OpenJS.NodeJS.LTS
+```
+
+2. Install the dependencies.
 
 ```bash
 npm install
 ```
 
-2. Start the app.
+3. Start the app.
 
 ```bash
 npm run dev
 ```
 
-3. Open [http://localhost:5180](http://localhost:5180).
+4. Open [http://localhost:5180](http://localhost:5180).
 
 If you want the setup details, deployment notes, or technical bits, see [DEV.md](DEV.md).
 

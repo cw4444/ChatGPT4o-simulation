@@ -820,6 +820,7 @@ function App() {
                 {keyModeLabel}
               </span>
             </div>
+            <div className="credit-badge">Built with Codex</div>
           </div>
 
           <div className="topbar-actions">

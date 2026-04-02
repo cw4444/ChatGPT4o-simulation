@@ -1,73 +1,36 @@
 # 4o Chat Studio
 
-4o Chat Studio is a small chat app with a clean interface, multi-thread history, image uploads, and optional assistant personality controls.
+4o Chat Studio is a small chat app with image uploads, saved chat history, and optional personality controls.
 
-Concept by Charli. Heavy lifting by Codex. The human role was limited to snacks, vibes, and delighted testing.
+Concept by Charli. Heavy lifting by Codex.
 
 ## For Friends
 
-If you’re just here to have a play:
+If you just want to use it:
 
 - open the app
 - click `Customize`
 - add your OpenAI API key if you have one
-- choose a personality preset or drag the sliders
+- pick a preset or move the sliders
 - start chatting
 
-If you used a browser-saved key before, it should still be there in that same browser. If not, you’ll need to add a new one.
+If a key was saved in that browser before, it should still be there. If not, just add a new one.
 
-## What It Does
+## Need To Run It?
 
-- lets you chat with OpenAI models
-- saves chat threads in your browser
-- supports image uploads in messages
-- lets you set a browser-saved API key or use a server-side key
-- lets you tune the assistant's personality and response length
-
-## Run It Locally
-
-1. Install the dependencies:
+If you are a developer and want to run it locally:
 
 ```bash
 npm install
-```
-
-2. Start the app:
-
-```bash
 npm run dev
 ```
 
-3. Open [http://localhost:5180](http://localhost:5180)
+Then open [http://localhost:5180](http://localhost:5180).
 
-## API Key Setup
-
-### Option 1: Save a key in the app
-
-Open the `Customize` panel and paste your OpenAI API key there. It stays in that browser on that machine, so if your mates already had one, they can reuse it without seeing it again.
-
-### Option 2: Use a server-side key
-
-Copy `.env.example` to `.env` and add your key:
-
-```env
-OPENAI_API_KEY=sk-your-real-key-here
-```
-
-Then run the app normally with `npm run dev`.
-
-When `OPENAI_API_KEY` is set, the app can send requests through the local or hosted server without exposing the key to the browser.
-
-## Hosted Setup
-
-If you deploy this to Vercel, the frontend builds from Vite and the API routes live in `api/chat.js` and `api/config.js`.
-
-If you want server-side key mode on the hosted app, add `OPENAI_API_KEY` in your Vercel environment variables.
-
-## Notes
+## Tiny Notes
 
 - default model: `gpt-4o`
-- chat history is stored in local browser storage
+- chat history is stored in your browser
 - image attachments are limited to 3 per message
 - each image must be under 8MB
 

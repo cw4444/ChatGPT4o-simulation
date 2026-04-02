@@ -807,6 +807,9 @@ function App() {
               Delete chat
             </button>
           ) : null}
+          <a className="sidebar-credit" href="https://chatgpt.com/codex" target="_blank" rel="noreferrer">
+            Built with Codex
+          </a>
         </div>
       </aside>
 

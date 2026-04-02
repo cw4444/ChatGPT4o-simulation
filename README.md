@@ -48,11 +48,7 @@ When `OPENAI_API_KEY` is set, the app can send requests through the local or hos
 
 ## Hosted Setup
 
-If you deploy this to Vercel:
-
-- the frontend builds from Vite into `dist`
-- the API routes live in `api/chat.js` and `api/config.js`
-- shared OpenAI request logic lives in `lib/openai-runtime.mjs`
+If you deploy this to Vercel, the frontend builds from Vite and the API routes live in `api/chat.js` and `api/config.js`.
 
 If you want server-side key mode on the hosted app, add `OPENAI_API_KEY` in your Vercel environment variables.
 

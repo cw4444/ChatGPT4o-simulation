@@ -121,6 +121,22 @@ button {
   line-height: 1.5;
 }
 
+.sidebar-credit {
+  display: inline-flex;
+  align-items: center;
+  width: fit-content;
+  color: #9ddab8;
+  font-size: 0.82rem;
+  font-weight: 700;
+  text-decoration: none;
+  transition: color 0.2s ease, transform 0.2s ease;
+}
+
+.sidebar-credit:hover {
+  color: #dbfff0;
+  transform: translateY(-1px);
+}
+
 .wide-button {
   width: 100%;
 }

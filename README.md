@@ -1,34 +1,40 @@
 # 4o Chat Studio
 
-A polished GPT-4o chat demo with multi-thread history, image prompts, browser-saved sessions, and a server-side OpenAI mode for safer hosted use.
+4o Chat Studio is a small chat app with a clean interface, multi-thread history, image uploads, and optional assistant personality controls.
 
 This version was built entirely by Codex. The human role was limited to snacks, vibes, and delighted testing.
 
-## Highlights
+## What It Does
 
-- clean React + Vite chat interface
-- multi-thread local chat history
-- image upload for visual prompts
-- optional browser-saved API key mode
-- server-side OpenAI proxy for local or hosted deployments
-- custom assistant instructions per browser session
+- lets you chat with OpenAI models
+- saves chat threads in your browser
+- supports image uploads in messages
+- lets you set a browser-saved API key or use a server-side key
+- lets you tune the assistant's personality and response length
 
-## Local Development
+## Run It Locally
+
+1. Install the dependencies:
 
 ```bash
 npm install
+```
+
+2. Start the app:
+
+```bash
 npm run dev
 ```
 
-Open [http://localhost:5180](http://localhost:5180).
+3. Open [http://localhost:5180](http://localhost:5180)
 
-## API Key Options
+## API Key Setup
 
-### Browser key mode
+### Option 1: Save a key in the app
 
-Paste your OpenAI key into the `Customize` panel. The key stays in that browser on that machine.
+Open the `Customize` panel and paste your OpenAI API key there. It stays in that browser on that machine.
 
-### Server key mode
+### Option 2: Use a server-side key
 
 Copy `.env.example` to `.env` and add your key:
 
@@ -36,27 +42,23 @@ Copy `.env.example` to `.env` and add your key:
 OPENAI_API_KEY=sk-your-real-key-here
 ```
 
-Then run the app normally:
+Then run the app normally with `npm run dev`.
 
-```bash
-npm run dev
-```
+When `OPENAI_API_KEY` is set, the app can send requests through the local or hosted server without exposing the key to the browser.
 
-When `OPENAI_API_KEY` is present, the app can send requests through the local or hosted server without exposing the key to the client.
+## Hosted Setup
 
-## Hosted Deployment
-
-This repo is set up for Vercel:
+If you deploy this to Vercel:
 
 - the frontend builds from Vite into `dist`
-- the hosted API lives in `api/chat.js` and `api/config.js`
+- the API routes live in `api/chat.js` and `api/config.js`
 - shared OpenAI request logic lives in `lib/openai-runtime.mjs`
 
-Set `OPENAI_API_KEY` in Vercel project environment variables before deploying if you want server-side key mode on the public demo.
+If you want server-side key mode on the hosted app, add `OPENAI_API_KEY` in your Vercel environment variables.
 
 ## Notes
 
-- model default: `gpt-4o`
+- default model: `gpt-4o`
 - chat history is stored in local browser storage
 - image attachments are limited to 3 per message
 - each image must be under 8MB

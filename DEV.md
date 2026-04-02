@@ -4,6 +4,10 @@ This file is for setup, configuration, and deployment details.
 
 ## Local Development
 
+1. Install Node.js.
+2. Install dependencies.
+3. Start the app.
+
 ```bash
 npm install
 npm run dev

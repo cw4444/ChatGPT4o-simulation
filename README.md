@@ -2,6 +2,8 @@
 
 A polished GPT-4o chat demo with multi-thread history, image prompts, browser-saved sessions, and a server-side OpenAI mode for safer hosted use.
 
+This version was built entirely by Codex. The human role was limited to snacks, vibes, and delighted testing.
+
 ## Highlights
 
 - clean React + Vite chat interface

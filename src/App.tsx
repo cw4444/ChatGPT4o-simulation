@@ -23,6 +23,30 @@ type AppConfig = {
   appName?: string;
 };
 
+type PersonalityProfile = {
+  flirty: number;
+  patient: number;
+  chaos: number;
+  wisdom: number;
+  snark: number;
+};
+
+type PersonalityKey = keyof PersonalityProfile;
+
+type PersonalityPreset = {
+  id: string;
+  name: string;
+  description: string;
+  profile: PersonalityProfile;
+};
+
+type VerbosityPreset = {
+  id: string;
+  name: string;
+  description: string;
+  value: number;
+};
+
 type UploadedImage = {
   id: string;
   name: string;
@@ -35,6 +59,8 @@ const INSTRUCTIONS_STORAGE = 'gpt4o-chat-instructions';
 const THREADS_STORAGE = 'gpt4o-chat-threads';
 const ACTIVE_THREAD_STORAGE = 'gpt4o-chat-active-thread';
 const LEGACY_MESSAGES_STORAGE = 'gpt4o-chat-messages';
+const PERSONALITY_STORAGE = 'gpt4o-chat-personality';
+const VERBOSITY_STORAGE = 'gpt4o-chat-verbosity';
 
 const starterText =
   '4o Chat Studio is ready. Add your API key in Customize, set optional guidance for the assistant, and start a fresh thread.';
@@ -61,6 +87,270 @@ function removeStorage(key: string) {
   } catch {
     // Ignore storage cleanup failures.
   }
+}
+
+const defaultPersonality: PersonalityProfile = {
+  flirty: 18,
+  patient: 72,
+  chaos: 12,
+  wisdom: 64,
+  snark: 16
+};
+
+const defaultVerbosity = 52;
+
+const verbosityPresets: VerbosityPreset[] = [
+  { id: 'snappy', name: 'Snappy', description: 'Short and punchy.', value: 18 },
+  { id: 'balanced', name: 'Balanced', description: 'The default middle ground.', value: 52 },
+  { id: 'chatty', name: 'Chatty', description: 'More context and explanation.', value: 82 }
+];
+
+const personalityPresets: PersonalityPreset[] = [
+  {
+    id: 'sweet-gremlin',
+    name: 'Sweet Gremlin',
+    description: 'Playful, warm, a bit unhinged in a harmless way.',
+    profile: {
+      flirty: 28,
+      patient: 68,
+      chaos: 62,
+      wisdom: 52,
+      snark: 22
+    }
+  },
+  {
+    id: 'wise-uncle',
+    name: 'Wise Uncle',
+    description: 'Calm, steady, and annoyingly hard to rattle.',
+    profile: {
+      flirty: 6,
+      patient: 92,
+      chaos: 8,
+      wisdom: 94,
+      snark: 10
+    }
+  },
+  {
+    id: 'chaos-goblin',
+    name: 'Chaos Goblin',
+    description: 'Fast wit, higher mischief, still useful at the core.',
+    profile: {
+      flirty: 14,
+      patient: 38,
+      chaos: 96,
+      wisdom: 46,
+      snark: 58
+    }
+  },
+  {
+    id: 'gen-z-sassy-bossy',
+    name: 'Gen Z Sassy Bossy',
+    description: 'Confident, sharp, and a little bit “babes, focus.”',
+    profile: {
+      flirty: 18,
+      patient: 44,
+      chaos: 26,
+      wisdom: 58,
+      snark: 72
+    }
+  },
+  {
+    id: 'soft-flirt',
+    name: 'Soft Flirt',
+    description: 'Warm, gentle, and lightly charming.',
+    profile: {
+      flirty: 78,
+      patient: 74,
+      chaos: 14,
+      wisdom: 48,
+      snark: 8
+    }
+  },
+  {
+    id: 'big-sis',
+    name: 'Big Sis',
+    description: 'Protective, opinionated, and low-key hilarious.',
+    profile: {
+      flirty: 12,
+      patient: 62,
+      chaos: 24,
+      wisdom: 60,
+      snark: 46
+    }
+  },
+  {
+    id: 'gentle-mentor',
+    name: 'Gentle Mentor',
+    description: 'Kind, thoughtful, and quietly encouraging.',
+    profile: {
+      flirty: 8,
+      patient: 96,
+      chaos: 6,
+      wisdom: 88,
+      snark: 4
+    }
+  },
+  {
+    id: 'chaotic-bestie',
+    name: 'Chaotic Bestie',
+    description: 'Unfiltered energy with enough sense to help.',
+    profile: {
+      flirty: 24,
+      patient: 48,
+      chaos: 88,
+      wisdom: 40,
+      snark: 54
+    }
+  }
+];
+
+function readPersonality() {
+  const storedValue = readStorage(PERSONALITY_STORAGE);
+
+  if (!storedValue) {
+    return defaultPersonality;
+  }
+
+  try {
+    const parsed = JSON.parse(storedValue) as Partial<PersonalityProfile>;
+
+    return {
+      flirty: clampPersonality(parsed.flirty, defaultPersonality.flirty),
+      patient: clampPersonality(parsed.patient, defaultPersonality.patient),
+      chaos: clampPersonality(parsed.chaos, defaultPersonality.chaos),
+      wisdom: clampPersonality(parsed.wisdom, defaultPersonality.wisdom),
+      snark: clampPersonality(parsed.snark, defaultPersonality.snark)
+    };
+  } catch {
+    removeStorage(PERSONALITY_STORAGE);
+    return defaultPersonality;
+  }
+}
+
+function readVerbosity() {
+  const storedValue = readStorage(VERBOSITY_STORAGE);
+
+  if (!storedValue) {
+    return defaultVerbosity;
+  }
+
+  const parsed = Number(storedValue);
+  if (Number.isNaN(parsed)) {
+    removeStorage(VERBOSITY_STORAGE);
+    return defaultVerbosity;
+  }
+
+  return Math.min(100, Math.max(0, Math.round(parsed)));
+}
+
+function clampPersonality(value: unknown, fallback: number) {
+  if (typeof value !== 'number' || Number.isNaN(value)) {
+    return fallback;
+  }
+
+  return Math.min(100, Math.max(0, Math.round(value)));
+}
+
+function buildPersonalityInstructions(profile: PersonalityProfile) {
+  return [
+    `Flirty: ${profile.flirty}/100`,
+    `Patient: ${profile.patient}/100`,
+    `Chaos: ${profile.chaos}/100`,
+    `Wisdom: ${profile.wisdom}/100`,
+    `Snark: ${profile.snark}/100`,
+    '',
+    'Interpretation guide:',
+    '- Higher flirty means warmer, more playful, and a little charming.',
+    '- Higher patient means slower, calmer, more forgiving explanations.',
+    '- Higher chaos means more surprise, whimsy, and occasional mischief.',
+    '- Higher wisdom means more depth, context, and thoughtful judgment.',
+    '- Higher snark means sharper wit, but never hostile or rude.',
+    '',
+    'Keep the overall voice helpful and safe. If the sliders conflict, preserve clarity and usefulness first.'
+  ].join('\n');
+}
+
+function buildVerbosityInstructions(value: number) {
+  if (value <= 24) {
+    return [
+      'Verbosity: concise',
+      'Keep replies short, direct, and easy to scan.',
+      'Prefer the minimum useful answer.',
+      'Avoid extra framing unless it prevents confusion.'
+    ].join('\n');
+  }
+
+  if (value >= 75) {
+    return [
+      'Verbosity: expansive',
+      'Give fuller explanations, practical context, and a little more detail.',
+      'Use examples when they help.',
+      'Still avoid unnecessary rambling.'
+    ].join('\n');
+  }
+
+  return [
+    'Verbosity: balanced',
+    'Aim for moderate detail.',
+    'Be complete, but do not over-explain.',
+    'Default to useful middle-length answers.'
+  ].join('\n');
+}
+
+function formatToneLabel(profile: PersonalityProfile) {
+  if (profile.chaos >= 85) {
+    return 'fully feral';
+  }
+
+  if (profile.snark >= 65) {
+    return 'sassy mode';
+  }
+
+  if (profile.wisdom >= 85) {
+    return 'elder-stacked';
+  }
+
+  if (profile.patient >= 85) {
+    return 'zen and steady';
+  }
+
+  return 'balanced';
+}
+
+function formatVerbosityLabel(value: number) {
+  if (value <= 24) {
+    return 'snappy';
+  }
+
+  if (value >= 75) {
+    return 'expansive';
+  }
+
+  return 'balanced';
+}
+
+function getAvatarMood(profile: PersonalityProfile) {
+  if (profile.chaos >= 85) {
+    return '⚡';
+  }
+
+  if (profile.snark >= 65) {
+    return '😼';
+  }
+
+  if (profile.flirty >= 70) {
+    return '💘';
+  }
+
+  if (profile.patient >= 85) {
+    return '🫶';
+  }
+
+  if (profile.wisdom >= 85) {
+    return '🧠';
+  }
+
+  return '✨';
 }
 
 function createMessage(role: Role, content: string): Message {
@@ -160,6 +450,8 @@ function getInitialThreads() {
 function App() {
   const [apiKey, setApiKey] = useState(() => readStorage(API_KEY_STORAGE));
   const [instructions, setInstructions] = useState(() => readStorage(INSTRUCTIONS_STORAGE));
+  const [personality, setPersonality] = useState<PersonalityProfile>(() => readPersonality());
+  const [verbosity, setVerbosity] = useState(() => readVerbosity());
   const [draft, setDraft] = useState('');
   const [pendingImages, setPendingImages] = useState<UploadedImage[]>([]);
   const [isSending, setIsSending] = useState(false);
@@ -195,6 +487,14 @@ function App() {
   useEffect(() => {
     writeStorage(INSTRUCTIONS_STORAGE, instructions);
   }, [instructions]);
+
+  useEffect(() => {
+    writeStorage(PERSONALITY_STORAGE, JSON.stringify(personality));
+  }, [personality]);
+
+  useEffect(() => {
+    writeStorage(VERBOSITY_STORAGE, String(verbosity));
+  }, [verbosity]);
 
   useEffect(() => {
     writeStorage(THREADS_STORAGE, JSON.stringify(threads));
@@ -245,6 +545,11 @@ function App() {
       Boolean(activeThread)
     );
   }, [activeThread, apiKey, draft, hasServerApiKey, isSending, pendingImages.length]);
+  const personalityInstructions = useMemo(() => buildPersonalityInstructions(personality), [personality]);
+  const verbosityInstructions = useMemo(() => buildVerbosityInstructions(verbosity), [verbosity]);
+  const toneLabel = useMemo(() => formatToneLabel(personality), [personality]);
+  const avatarMood = useMemo(() => getAvatarMood(personality), [personality]);
+  const verbosityLabel = useMemo(() => formatVerbosityLabel(verbosity), [verbosity]);
   const keyModeLabel = hasServerApiKey
     ? apiKey.trim()
       ? 'Browser key active'
@@ -298,7 +603,7 @@ function App() {
         },
         body: JSON.stringify({
           apiKey: apiKey.trim(),
-          instructions,
+          instructions: [instructions.trim(), personalityInstructions, verbosityInstructions].filter(Boolean).join('\n\n'),
           messages: requestMessages.map(({ role, content, images }) => ({
             role,
             content,
@@ -444,6 +749,18 @@ function App() {
   function removePendingImage(imageId: string) {
     setPendingImages((current) => current.filter((image) => image.id !== imageId));
   }
+
+  function applyPersonalityPreset(preset: PersonalityPreset) {
+    setPersonality(preset.profile);
+  }
+
+  const personalityControls: Array<{ key: PersonalityKey; label: string }> = [
+    { key: 'flirty', label: 'Flirty' },
+    { key: 'patient', label: 'Patient' },
+    { key: 'chaos', label: 'Chaos' },
+    { key: 'wisdom', label: 'Wisdom' },
+    { key: 'snark', label: 'Snark' }
+  ];
 
   return (
     <div className="app-shell">
@@ -611,15 +928,28 @@ function App() {
 
       {settingsOpen ? (
         <div className="settings-overlay" onClick={() => setSettingsOpen(false)}>
-          <aside className="settings-panel" onClick={(event) => event.stopPropagation()}>
+      <aside className="settings-panel" onClick={(event) => event.stopPropagation()}>
             <div className="settings-heading">
               <div>
                 <p className="eyebrow">Customize</p>
                 <h1>Your chat setup</h1>
+                <p className="panel-kicker">Pick a preset, then nudge the knobs until the pet feels right.</p>
               </div>
               <button className="ghost-button" type="button" onClick={() => setSettingsOpen(false)}>
                 Close
               </button>
+            </div>
+
+            <div className="avatar-card">
+              <div className="avatar-emoji" aria-hidden="true">{avatarMood}</div>
+              <div className="avatar-copy">
+                <p className="avatar-title">Vibe buddy</p>
+                <p className="field-hint">
+                  {toneLabel === 'balanced'
+                    ? 'Balanced and ready.'
+                    : `Leaning ${toneLabel}.`}
+                </p>
+              </div>
             </div>
 
             <div className="control-group">
@@ -652,6 +982,100 @@ function App() {
                 placeholder="Example: Be concise, friendly, and format code in fenced blocks."
                 rows={10}
               />
+            </div>
+
+            <div className="control-group">
+              <div className="control-heading">
+                <label>Personality mix</label>
+                <p className="field-hint">Tune the pet's vibe. The sliders shape the system prompt while keeping the assistant grounded.</p>
+              </div>
+
+              <div className="preset-strip">
+                {personalityPresets.map((preset) => (
+                  <button
+                    key={preset.id}
+                    type="button"
+                    className="preset-chip"
+                    onClick={() => applyPersonalityPreset(preset)}
+                  >
+                    <span className="preset-name">{preset.name}</span>
+                    <span className="preset-desc">{preset.description}</span>
+                  </button>
+                ))}
+              </div>
+
+              <div className="tone-preview">
+                <span className="tone-preview-label">Current vibe</span>
+                <span className="tone-preview-value">{toneLabel}</span>
+              </div>
+
+              {personalityControls.map(({ key, label }) => (
+                <div key={key} className="slider-row">
+                  <div className="slider-labels">
+                    <span>{label}</span>
+                    <span>{personality[key]}</span>
+                  </div>
+                  <input
+                    className="range-slider"
+                    type="range"
+                    min={0}
+                    max={100}
+                    step={1}
+                    value={personality[key]}
+                    onChange={(event) =>
+                      setPersonality((current) => ({
+                        ...current,
+                        [key]: Number(event.target.value)
+                      }))
+                    }
+                    aria-label={label}
+                  />
+                </div>
+              ))}
+            </div>
+
+            <div className="control-group">
+              <div className="control-heading">
+                <label htmlFor="verbosity">Response length</label>
+                <p className="field-hint">Steer replies toward shorter or more expansive answers. It is not a strict limit, just a strong nudge.</p>
+              </div>
+
+              <div className="tone-preview">
+                <span className="tone-preview-label">Current length</span>
+                <span className="tone-preview-value">{verbosityLabel}</span>
+              </div>
+
+              <div className="preset-strip">
+                {verbosityPresets.map((preset) => (
+                  <button
+                    key={preset.id}
+                    type="button"
+                    className="preset-chip"
+                    onClick={() => setVerbosity(preset.value)}
+                  >
+                    <span className="preset-name">{preset.name}</span>
+                    <span className="preset-desc">{preset.description}</span>
+                  </button>
+                ))}
+              </div>
+
+              <div className="slider-row">
+                <div className="slider-labels">
+                  <span>Short</span>
+                  <span>{verbosity}</span>
+                  <span>Long</span>
+                </div>
+                <input
+                  className="range-slider"
+                  type="range"
+                  min={0}
+                  max={100}
+                  step={1}
+                  value={verbosity}
+                  onChange={(event) => setVerbosity(Number(event.target.value))}
+                  aria-label="Response length"
+                />
+              </div>
             </div>
 
             <div className="safety-note">

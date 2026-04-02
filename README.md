@@ -16,31 +16,26 @@ If you want to use the app:
 
 If a key was saved in that browser before, it should still be there. If not, just add a new one.
 
-## Running It Locally
+## 🚀 How to run this
 
-If you want to run the app yourself:
-
-1. Install Node.js if you do not already have it. On Windows, the easiest way is:
-
-```bash
-winget install OpenJS.NodeJS.LTS
-```
-
-2. Install the dependencies.
+1. Install Node.js: [nodejs.org](https://nodejs.org)
+2. Download this project and unzip it
+3. Open the folder
+4. Click the top bar where the folder path is
+5. Type: `cmd`
+6. Press Enter
+7. In the black window, paste:
 
 ```bash
 npm install
-```
-
-3. Start the app.
-
-```bash
 npm run dev
 ```
 
-4. Open [http://localhost:5180](http://localhost:5180).
+8. Click the link it gives you
 
-If you want the setup details, deployment notes, or technical bits, see [DEV.md](DEV.md).
+Done.
+
+If you want setup details, deployment notes, or technical bits, see [DEV.md](DEV.md).
 
 ## Tiny Notes
 

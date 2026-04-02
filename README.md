@@ -6,7 +6,7 @@ Concept by Charli. Heavy lifting by Codex.
 
 ## Start Here
 
-If you want to use the app:
+If you just want to use the app:
 
 1. Open the app.
 2. Click `Customize`.
@@ -14,9 +14,11 @@ If you want to use the app:
 4. Pick a preset or move the sliders.
 5. Start chatting.
 
-If a key was saved in that browser before, it should still be there. If not, just add a new one.
+If a key was saved in that browser before, it should still be there. If not, no drama, just add a new one.
 
 ## 🚀 How to run this
+
+If you want to run the app yourself, here’s the no-fuss version:
 
 1. Install Node.js: [nodejs.org](https://nodejs.org)
 2. Download this project and unzip it
@@ -33,7 +35,7 @@ npm run dev
 
 8. Click the link it gives you
 
-Done.
+Done. That’s the whole dance.
 
 If you want setup details, deployment notes, or technical bits, see [DEV.md](DEV.md).
 

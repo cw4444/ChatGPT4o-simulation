@@ -38,6 +38,8 @@ npm run dev
 
 Done. That’s the whole dance.
 
+If the link takes a moment to appear, give it a few seconds. Use the link the terminal prints when it shows up.
+
 If you want setup details, deployment notes, or technical bits, see [DEV.md](DEV.md).
 
 ## Tiny Notes

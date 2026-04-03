@@ -1,5 +1,7 @@
 # 4o Chat Studio
 
+Live Demo: https://four-o-chat-studio.vercel.app/
+
 4o Chat Studio is a small chat app with image uploads, saved chat history, and optional personality controls.
 
 Concept by Charli. Heavy lifting by Codex.

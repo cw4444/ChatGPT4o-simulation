@@ -254,6 +254,12 @@ button {
   border: 1px solid rgba(108, 202, 151, 0.28);
 }
 
+.status-pill.settings {
+  background: rgba(30, 39, 50, 0.96);
+  color: #dce8ff;
+  border: 1px solid rgba(126, 164, 255, 0.26);
+}
+
 .credit-badge {
   display: inline-flex;
   align-items: center;
@@ -620,6 +626,12 @@ button {
   transform: translateY(-1px);
   border-color: rgba(137, 241, 185, 0.42);
   background: rgba(22, 30, 35, 0.94);
+}
+
+.preset-chip.active {
+  border-color: rgba(137, 241, 185, 0.62);
+  background: rgba(33, 48, 42, 0.98);
+  box-shadow: inset 0 0 0 1px rgba(137, 241, 185, 0.14);
 }
 
 .preset-name {

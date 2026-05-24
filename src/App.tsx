@@ -47,6 +47,11 @@ type VerbosityPreset = {
   value: number;
 };
 
+type ChatSettings = {
+  personality: PersonalityProfile;
+  verbosity: number;
+};
+
 type UploadedImage = {
   id: string;
   name: string;
@@ -274,7 +279,7 @@ function buildVerbosityInstructions(value: number) {
   if (value <= 24) {
     return [
       'Verbosity: concise',
-      'Keep replies short, direct, and easy to scan.',
+      'Keep replies short, direct, and easy to scan. Aim for 1-3 short paragraphs unless the user asks for more.',
       'Prefer the minimum useful answer.',
       'Avoid extra framing unless it prevents confusion.'
     ].join('\n');
@@ -283,7 +288,7 @@ function buildVerbosityInstructions(value: number) {
   if (value >= 75) {
     return [
       'Verbosity: expansive',
-      'Give fuller explanations, practical context, and a little more detail.',
+      'Give fuller explanations, practical context, and a little more detail. Aim for 3-6 paragraphs when the task benefits from it.',
       'Use examples when they help.',
       'Still avoid unnecessary rambling.'
     ].join('\n');
@@ -351,6 +356,16 @@ function getAvatarMood(profile: PersonalityProfile) {
   }
 
   return '✨';
+}
+
+function profilesMatch(left: PersonalityProfile, right: PersonalityProfile) {
+  return (
+    left.flirty === right.flirty &&
+    left.patient === right.patient &&
+    left.chaos === right.chaos &&
+    left.wisdom === right.wisdom &&
+    left.snark === right.snark
+  );
 }
 
 function createMessage(role: Role, content: string): Message {
@@ -547,9 +562,18 @@ function App() {
   }, [activeThread, apiKey, draft, hasServerApiKey, isSending, pendingImages.length]);
   const personalityInstructions = useMemo(() => buildPersonalityInstructions(personality), [personality]);
   const verbosityInstructions = useMemo(() => buildVerbosityInstructions(verbosity), [verbosity]);
+  const chatSettings = useMemo<ChatSettings>(() => ({ personality, verbosity }), [personality, verbosity]);
   const toneLabel = useMemo(() => formatToneLabel(personality), [personality]);
   const avatarMood = useMemo(() => getAvatarMood(personality), [personality]);
   const verbosityLabel = useMemo(() => formatVerbosityLabel(verbosity), [verbosity]);
+  const activePersonalityPreset = useMemo(
+    () => personalityPresets.find((preset) => profilesMatch(preset.profile, personality))?.id,
+    [personality]
+  );
+  const activeVerbosityPreset = useMemo(
+    () => verbosityPresets.find((preset) => preset.value === verbosity)?.id,
+    [verbosity]
+  );
   const keyModeLabel = hasServerApiKey
     ? apiKey.trim()
       ? 'Browser key active'
@@ -604,6 +628,7 @@ function App() {
         body: JSON.stringify({
           apiKey: apiKey.trim(),
           instructions: [instructions.trim(), personalityInstructions, verbosityInstructions].filter(Boolean).join('\n\n'),
+          settings: chatSettings,
           messages: requestMessages.map(({ role, content, images }) => ({
             role,
             content,
@@ -822,6 +847,9 @@ function App() {
               <span className={`status-pill ${hasServerApiKey && !apiKey.trim() ? 'server' : 'browser'}`}>
                 {keyModeLabel}
               </span>
+              <span className="status-pill settings">
+                {toneLabel} / {verbosityLabel}
+              </span>
             </div>
             <a
               className="credit-badge"
@@ -944,7 +972,7 @@ function App() {
               <div>
                 <p className="eyebrow">Customize</p>
                 <h1>Your chat setup</h1>
-                <p className="panel-kicker">Pick a preset, then nudge the knobs until the pet feels right.</p>
+                <p className="panel-kicker">Pick a preset, then nudge the knobs until the pet feels right. Changes autosave in this browser.</p>
               </div>
               <button className="ghost-button" type="button" onClick={() => setSettingsOpen(false)}>
                 Close
@@ -1006,7 +1034,7 @@ function App() {
                   <button
                     key={preset.id}
                     type="button"
-                    className="preset-chip"
+                    className={`preset-chip ${activePersonalityPreset === preset.id ? 'active' : ''}`}
                     onClick={() => applyPersonalityPreset(preset)}
                   >
                     <span className="preset-name">{preset.name}</span>
@@ -1061,7 +1089,7 @@ function App() {
                   <button
                     key={preset.id}
                     type="button"
-                    className="preset-chip"
+                    className={`preset-chip ${activeVerbosityPreset === preset.id ? 'active' : ''}`}
                     onClick={() => setVerbosity(preset.value)}
                   >
                     <span className="preset-name">{preset.name}</span>
@@ -1090,9 +1118,9 @@ function App() {
             </div>
 
             <div className="safety-note">
-              <p className="safety-title">Privacy note</p>
+              <p className="safety-title">Autosave and privacy note</p>
               <p className="field-hint">
-                This app keeps chat history in local browser storage. In hosted mode, requests go through a server-side proxy so an environment-stored OpenAI key never needs to ship to the client.
+                There is no save button. API key, instructions, personality, response length, and chat history save automatically in local browser storage. In hosted mode, requests go through a server-side proxy so an environment-stored OpenAI key never needs to ship to the client.
               </p>
             </div>
 
